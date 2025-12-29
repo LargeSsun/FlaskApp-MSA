@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: photo-service
-        image: your-repo/photo_service:latest
+        image: hyunhojang/photo_service:latest
         ports:
         - containerPort: 5003
         volumeMounts:

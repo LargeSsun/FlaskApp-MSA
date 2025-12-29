@@ -9,7 +9,7 @@ data:
         server {
             listen 80;
             location / {
-                root /var/www/frontend;
+                root /usr/share/nginx/html;
                 index index.html;
             }
             location /api/ {

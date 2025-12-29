@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: employee-server
-        image: your-repo/employee_server:latest
+        image: hyunhojang/employee_server:latest
         ports:
         - containerPort: 5002
 ---
