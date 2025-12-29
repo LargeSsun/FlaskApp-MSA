@@ -9,7 +9,7 @@ data:
         server {
             listen 80;
             location / {
-                root /usr/share/nginx/html;
+                root /var/www/frontend;
                 index index.html;
             }
             location /api/ {
@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:latest
+        image: hyunhojang/frontend:v1
         ports:
         - containerPort: 80
         volumeMounts:

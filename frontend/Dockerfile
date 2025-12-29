@@ -5,7 +5,7 @@ FROM nginx:latest
 RUN rm /etc/nginx/conf.d/default.conf
 
 # 내 로컬의 frontend 파일들을 컨테이너 안으로 복사
-COPY . /usr/share/nginx/html/
+COPY . /var/www/frontend/
 
 # Nginx 실행
 CMD ["nginx", "-g", "daemon off;"]
