@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: hyunhojang/frontend:v1
+        image: hyunhojang/frontend:v2
         ports:
         - containerPort: 80
         volumeMounts:
