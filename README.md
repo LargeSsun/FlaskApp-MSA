@@ -49,11 +49,25 @@ httpx.AsyncClient()를 사용하여 비동기 논블로킹(Non-blocking) 방식�
 
 확인 도구: kubectl get endpoints 명령어를 통해 서비스가 실제 파드 IP를 제대로 가리키고 있는지 검증.
 
-💡 현재 환경 최종 아키텍처 흐름
-Browser: POST /api/auth/login
+기존 README의 흐름에 맞춰, 오늘 진행한 사진 서비스 프록시 및 라우팅 관련 트러블슈팅 내용을 6번 항목으로 깔끔하게 정리해 드립니다. 이 내용을 그대로 복사해서 하단에 붙여넣으시면 됩니다.
 
-Nginx (Port 30080): 요청 수신 후 gateway:5000으로 바이패스
+6. 사진 서비스 프록시 및 라우팅 문제 (422/405/Redirect Issue)
+문제: 직원 사진 업로드 후 조회 시, 엑스박스가 뜨거나 사진 주소로 접속하면 홈페이지로 리다이렉트됨.
 
-Gateway (Port 5000): 요청 경로 인식 후 auth-server:5001/login으로 비동기 프록시
+원인:
 
-Auth-Server (Port 5001): db:3306 접속 후 사용자 인증 수행
+FastAPI 경로 매칭 오류 (422): Gateway의 엔드포인트 변수명과 함수 인자명이 불일치하여 FastAPI가 경로 변수를 쿼리 스트링으로 오인함.
+
+HTTP 메서드 미지원 (405): curl -I 등의 HEAD 요청에 대해 Gateway가 GET만 허용하여 발생.
+
+MIME 타입 미지정: 응답 시 Content-Type을 image/jpeg로 명시하지 않아 브라우저가 바이너리 데이터를 텍스트/HTML로 해석함.
+
+Nginx 라우팅 간섭 (리다이렉트): 브라우저가 접속하는 Nginx(Port 30080)가 /static/uploads 경로를 Gateway로 넘겨주지 않고 자기 선에서 처리(정적 파일 미존재 시 홈으로 리다이렉트)함.
+
+해결:
+
+Gateway 코드 수정: 경로 변수명({photo_name})과 함수 인자를 일치시키고, Response 객체 생성 시 media_type="image/jpeg"를 강제 지정함.
+
+백엔드 검증: curl -v를 통해 Gateway Pod IP에서 실제 30KB 이상의 바이너리 데이터와 image/jpeg 헤더가 넘어오는 것을 확인(백엔드 파이프라인 정상화).
+
+향후 과제: Nginx 설정(default.conf)에 /static/uploads/ 경로에 대한 proxy_pass 규칙을 추가하여 Gateway(5000번 포트)로 요청이 전달되도록 인프라 설정 수정 필요.
