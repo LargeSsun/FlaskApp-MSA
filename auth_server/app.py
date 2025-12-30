@@ -24,7 +24,7 @@ app.add_middleware(
 # In a real application, this secret key should be complex and stored securely.
 SECRET_KEY = 'your-super-secret-key-change-it' # Moved from app.config
 
-@app.post('/login')
+@app.post('/auth/login')
 async def login(user_credentials: LoginRequest):
     """
     Handles user login.
