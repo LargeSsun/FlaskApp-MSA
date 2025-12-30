@@ -21,6 +21,7 @@ spec:
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
+  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   hostPath:
