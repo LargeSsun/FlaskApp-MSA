@@ -15,9 +15,9 @@ app.add_middleware(
 )
 
 # 다운스트림 서비스(인증 서버, 직원 서버)의 URL 정의
-AUTH_SERVER_URL = "http://localhost:5001"
-EMPLOYEE_SERVER_URL = "http://localhost:5002"
-PHOTO_SERVICE_URL = "http://localhost:5003" # 새로운 사진 서비스 URL
+AUTH_SERVER_URL = "http://auth-server:5001"
+EMPLOYEE_SERVER_URL = "http://employee-server:5002"
+PHOTO_SERVICE_URL = "http://photo-service:5003" # 새로운 사진 서비스 URL
 
 # 비동기 요청을 위한 httpx 클라이언트 초기화
 # 연결 풀링을 위해 전역 클라이언트 사용
