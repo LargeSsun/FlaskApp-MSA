@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: gateway
-        image: hyunhojang/gateway:v2
+        image: hyunhojang/gateway:v0.6
         ports:
         - containerPort: 5000
 ---
