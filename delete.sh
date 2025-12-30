@@ -5,3 +5,4 @@ kubectl delete -f k8s/employee.yaml
 kubectl delete -f k8s/photo.yaml
 kubectl delete -f k8s/gateway.yaml
 kubectl delete -f k8s/nginx.yaml
+sudo rm -rf /mnt/data/mysql/*

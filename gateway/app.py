@@ -60,7 +60,7 @@ async def proxy_employee_photo_requests(filename: str, request: Request):
         raise HTTPException(status_code=503, detail=f"Employee photo service unavailable: {str(e)}")
 
 # auth_server로 요청 프록시
-@app.api_route("/api/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
+@app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
 async def proxy_auth_requests(path: str, request: Request):
     """인증 서버로 요청을 프록시합니다."""
     url = f"{AUTH_SERVER_URL}/{path}" # 인증 서버의 URL 구성
@@ -93,7 +93,7 @@ async def proxy_auth_requests(path: str, request: Request):
         raise HTTPException(status_code=503, detail=f"Auth service unavailable: {str(e)}")
 
 # employee_server로 요청 프록시
-@app.api_route("/api/employee/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
+@app.api_route("/employee/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
 async def proxy_employee_requests(path: str, request: Request):
     """직원 서버로 요청을 프록시합니다."""
     url = f"{EMPLOYEE_SERVER_URL}/{path}" # 직원 서버의 URL 구성
