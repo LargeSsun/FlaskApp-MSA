@@ -56,17 +56,17 @@
 6. **사진 서비스 프록시 및 라우팅 문제 (422/405/Redirect Issue)**
     - 문제: 직원 사진 업로드 후 조회 시, 엑스박스가 뜨거나 사진 주소로 접속하면 홈페이지로 리다이렉트됨.
     - 원인:
-    FastAPI 경로 매칭 오류 (422): Gateway의 엔드포인트 변수명과 함수 인자명이 불일치하여 FastAPI가 경로 변수를 쿼리 스트링으로 오인함.
+        FastAPI 경로 매칭 오류 (422): Gateway의 엔드포인트 변수명과 함수 인자명이 불일치하여 FastAPI가 경로 변수를 쿼리 스트링으로 오인함.
     
-    HTTP 메서드 미지원 (405): curl -I 등의 HEAD 요청에 대해 Gateway가 GET만 허용하여 발생.
+        HTTP 메서드 미지원 (405): curl -I 등의 HEAD 요청에 대해 Gateway가 GET만 허용하여 발생.
     
-    MIME 타입 미지정: 응답 시 Content-Type을 image/jpeg로 명시하지 않아 브라우저가 바이너리 데이터를 텍스트/HTML로 해석함.
+        MIME 타입 미지정: 응답 시 Content-Type을 image/jpeg로 명시하지 않아 브라우저가 바이너리 데이터를 텍스트/HTML로 해석함.
     
-    Nginx 라우팅 간섭 (리다이렉트): 브라우저가 접속하는 Nginx(Port 30080)가 /static/uploads 경로를 Gateway로 넘겨주지 않고 자기 선에서 처리(정적 파일 미존재 시 홈으로 리다이렉트)함.
+        Nginx 라우팅 간섭 (리다이렉트): 브라우저가 접속하는 Nginx(Port 30080)가 /static/uploads 경로를 Gateway로 넘겨주지 않고 자기 선에서 처리(정적 파일 미존재 시 홈으로 리다이렉트)함.
     - 해결:
-    Gateway 코드 수정: 경로 변수명({photo_name})과 함수 인자를 일치시키고, Response 객체 생성 시 media_type="image/jpeg"를 강제 지정함.
+        Gateway 코드 수정: 경로 변수명({photo_name})과 함수 인자를 일치시키고, Response 객체 생성 시 media_type="image/jpeg"를 강제 지정함.
     
-    백엔드 검증: curl -v를 통해 Gateway Pod IP에서 실제 30KB 이상의 바이너리 데이터와 image/jpeg 헤더가 넘어오는 것을 확인(백엔드 파이프라인 정상화).
+        백엔드 검증: curl -v를 통해 Gateway Pod IP에서 실제 30KB 이상의 바이너리 데이터와 image/jpeg 헤더가 넘어오는 것을 확인(백엔드 파이프라인 정상화).
 
 ---
 
