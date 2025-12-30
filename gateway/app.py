@@ -28,36 +28,37 @@ async def shutdown_event():
     # 애플리케이션 종료 시 httpx 클라이언트 연결 닫기
     await client.aclose()
 
-# 직원 사진 요청을 위한 프록시
-@app.api_route("/static/uploads/{filename:path}", methods=["GET"])
-async def proxy_employee_photo_requests(filename: str, request: Request):
-    """직원 사진 요청을 직원 서버로 프록시합니다."""
-    url = f"{PHOTO_SERVICE_URL}/photos/{filename}" # 사진 서비스의 사진 URL 구성
-
-    print(f"Gateway: proxy_employee_photo_requests") # 로깅
+# 직원 사진 요청을 위한 프록시 엔드포인트
+@app.api_route("/static/uploads/{photo_name:path}", methods=["GET", "HEAD"])
+async def proxy_employee_photo_requests(photo_name: str, request: Request):
+    # 이 로그가 찍히면 Gateway까지는 온 겁니다.
+    print(f"!!! [GATEWAY] PHOTO REQUEST DETECTED: {photo_name} !!!")
     
-    # 호스트 및 Content-Length를 제외한 헤더 재구성 (httpx가 Content-Length 처리)
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in ["host", "content-length"]}
-
+    # 쿼리 스트링 등이 붙어올 경우를 대비해 순수 파일명만 추출
+    clean_name = photo_name.split('?')[0]
+    url = f"{PHOTO_SERVICE_URL}/photos/{clean_name}"
+    
     try:
-        # 직원 서버로 요청 전달
-        resp = await client.request(
-            method=request.method,
-            url=url,
-            headers=headers,
-            params=request.query_params,
-            follow_redirects=False
-        )
-        
-        # Content-Encoding, Content-Length, Transfer-Encoding, Connection을 제외한 응답 헤더 재구성
-        excluded_headers = ["content-encoding", "content-length", "transfer-encoding", "connection"]
-        response_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded_headers}
-        
-        # 직원 서버의 응답 반환
-        return Response(content=resp.content, status_code=resp.status_code, headers=response_headers)
-    except httpx.RequestError as e:
-        # 서비스 사용 불가 시 예외 발생
-        raise HTTPException(status_code=503, detail=f"Employee photo service unavailable: {str(e)}")
+        # 1. Photo Service로 요청
+        async with httpx.AsyncClient() as c:
+            resp = await c.get(url, timeout=5.0)
+            
+            # 2. 결과 로그
+            print(f"!!! [GATEWAY] PHOTO-SERVICE RESP: {resp.status_code} for {url} !!!")
+            
+            if resp.status_code == 200:
+                return Response(
+                    content=resp.content,
+                    status_code=200,
+                    media_type="image/jpeg" # 브라우저가 다운로드나 리다이렉트 대신 이미지를 보여주게 함
+                )
+            else:
+                # 사진이 없으면 404를 명시적으로 반환 (홈페이지 이동 방지)
+                return Response(content="Photo Not Found", status_code=404)
+                
+    except Exception as e:
+        print(f"!!! [GATEWAY] PROXY ERROR: {e} !!!")
+        return Response(content=str(e), status_code=503)
 
 # auth_server로 요청 프록시
 @app.api_route("/api/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
@@ -97,7 +98,10 @@ async def proxy_auth_requests(path: str, request: Request):
 @app.api_route("/api/employee/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
 async def proxy_employee_requests(path: str, request: Request):
     """직원 서버로 요청을 프록시합니다."""
-    url = f"{EMPLOYEE_SERVER_URL}/employee/{path}" # 직원 서버의 URL 구성
+    url = f"{EMPLOYEE_SERVER_URL}/{path}" 
+    
+    # 디버깅 로그 추가 (반드시 확인하세요)
+    print(f"DEBUG: Proxying to Employee Server -> {url}") # 직원 서버의 URL 구성
     
     # 호스트 및 Content-Length를 제외한 헤더 재구성 (httpx가 Content-Length 처리)
     headers = {k: v for k, v in request.headers.items() if k.lower() not in ["host", "content-length"]}

@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const empDiv = document.createElement('div');
                     empDiv.className = 'employee-item';
                     empDiv.innerHTML = `
-                        <img src="${emp.photo_url ? API_BASE_URL + '/static' + emp.photo_url : DEFAULT_PHOTO_PLACEHOLDER}" alt="${emp.full_name}" width="120" height="160">
+                        <img src="${emp.photo_url ? API_BASE_URL + emp.photo_url : DEFAULT_PHOTO_PLACEHOLDER}" alt="${emp.full_name}" width="120" height="160">
                         <div>
                             <h4>${emp.full_name} (${emp.job_title})</h4>
                             <p>Location: ${emp.location}</p>

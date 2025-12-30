@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: hyunhojang/frontend:v2
+        image: hyunhojang/frontend:v0.8
         ports:
         - containerPort: 80
         volumeMounts:
